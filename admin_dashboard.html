@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CINEBOX</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0f1e;
+            color: #f0f3fa;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Top Bar */
+        .admin-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-logo h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD966, #FF8C42);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .admin-badge {
+            background: rgba(255, 80, 80, 0.2);
+            color: #ff8080;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            border: 1px solid rgba(255, 80, 80, 0.3);
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .admin-actions a {
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-dashboard {
+            background: rgba(255, 215, 150, 0.15);
+            color: #FFD966;
+            border: 1px solid rgba(255, 215, 150, 0.3);
+        }
+
+        .btn-dashboard:hover {
+            background: rgba(255, 215, 150, 0.25);
+        }
+
+        .btn-logout {
+            background: rgba(255, 80, 80, 0.15);
+            color: #ff8080;
+            border: 1px solid rgba(255, 80, 80, 0.3);
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 80, 80, 0.3);
+        }
+
+        /* Stats Grid */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(18, 25, 40, 0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            border: 1px solid rgba(255, 215, 150, 0.15);
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #90a1c2;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, #FFD966);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Main Layout */
+        .admin-main {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: rgba(10, 16, 26, 0.65);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 200, 120, 0.2);
+            padding: 1.8rem;
+            height: fit-content;
+        }
+
+        .upload-section h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid #FFB347;
+            padding-left: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #b9c7db;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FFB347;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-upload-area {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed rgba(255, 215, 150, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-area:hover {
+            border-color: #FFB347;
+            background: rgba(255, 200, 100, 0.05);
+        }
+
+        .file-upload-area i {
+            font-size: 2.5rem;
+            color: #FFD966;
+            margin-bottom: 0.8rem;
+        }
+
+        .file-upload-area p {
+            color: #90a1c2;
+            font-size: 0.85rem;
+        }
+
+        .file-upload-area .selected-file {
+            color: #FFD966;
+            font-weight: 600;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FFD966, #FF8C42);
+            border: none;
+            border-radius: 14px;
+            color: #0a0f1e;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 140, 66, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Video List Section */
+        .video-list-section {
+            background: rgba(10, 16, 26, 0.65);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 200, 120, 0.2);
+            padding: 1.8rem;
+        }
+
+        .video-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid #FFB347;
+            padding-left: 1rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .video-list-header h2 {
+            font-size: 1.3rem;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 30px;
+            padding: 0.3rem 0.3rem 0.3rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: #fff;
+            padding: 0.5rem;
+            font-size: 0.85rem;
+            outline: none;
+            min-width: 180px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-box button {
+            background: rgba(255, 215, 150, 0.15);
+            border: none;
+            color: #FFD966;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Video Table */
+        .video-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .video-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .video-table th {
+            text-align: left;
+            padding: 0.8rem 0.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #90a1c2;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .video-table td {
+            padding: 0.8rem 0.5rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            vertical-align: middle;
+        }
+
+        .video-table tr:hover td {
+            background: rgba(255, 190, 70, 0.03);
+        }
+
+        .video-title-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .video-thumb-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(145deg, #2c2f3e, #1b1e2c);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e6b86e;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .genre-tag {
+            background: rgba(255, 200, 80, 0.15);
+            color: #FFD966;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+        }
+
+        .views-count {
+            color: #90a1c2;
+            font-size: 0.8rem;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-edit {
+            background: rgba(100, 200, 255, 0.15);
+            color: #64c8ff;
+        }
+
+        .btn-edit:hover {
+            background: rgba(100, 200, 255, 0.25);
+        }
+
+        .btn-delete {
+            background: rgba(255, 80, 80, 0.15);
+            color: #ff8080;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 80, 80, 0.3);
+        }
+
+        .btn-view {
+            background: rgba(100, 255, 180, 0.15);
+            color: #64ffb4;
+        }
+
+        .btn-view:hover {
+            background: rgba(100, 255, 180, 0.25);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #90a1c2;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #3a4a6a;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .flash-msg {
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .flash-msg.success {
+            background: rgba(100, 255, 180, 0.12);
+            color: #64ffb4;
+            border: 1px solid rgba(100, 255, 180, 0.2);
+        }
+
+        .flash-msg.error {
+            background: rgba(255, 80, 80, 0.12);
+            color: #ff8080;
+            border: 1px solid rgba(255, 80, 80, 0.2);
+        }
+
+        .flash-msg.info {
+            background: rgba(100, 200, 255, 0.12);
+            color: #64c8ff;
+            border: 1px solid rgba(100, 200, 255, 0.2);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Upload Progress */
+        .upload-progress {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD966, #FF8C42);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: #90a1c2;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        /* Modal for editing */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a2235;
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 215, 150, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #FFD966, #FF8C42);
+            color: #0a0f1e;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #90a1c2;
+        }
+
+        @media (max-width: 1024px) {
+            .admin-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 1rem;
+            }
+            .admin-topbar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            .video-table th:nth-child(4),
+            .video-table td:nth-child(4) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Top Bar -->
+        <div class="admin-topbar">
+            <div class="admin-logo">
+                <h1><i class="fas fa-shield-alt"></i> CINEBOX Admin</h1>
+                <span class="admin-badge"><i class="fas fa-crown"></i> ADMIN PANEL</span>
+            </div>
+            <div class="admin-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn-dashboard"><i class="fas fa-tv"></i> View Site</a>
+                <a href="{{ url_for('logout') }}" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-msg {{ category }}">
+                <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Stats -->
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-video"></i> Total Videos</div>
+                <div class="stat-value">{{ stats.total_videos }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-eye"></i> Total Views</div>
+                <div class="stat-value">{{ stats.total_views }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
+                <div class="stat-value">{{ stats.total_users }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-layer-group"></i> Genres</div>
+                <div class="stat-value">{{ stats.total_genres }}</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Upload Form -->
+            <div class="upload-section">
+                <h2><i class="fas fa-cloud-upload-alt"></i> Upload New Video</h2>
+                
+                <form id="uploadForm" method="POST" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Video Title</label>
+                        <input type="text" name="title" placeholder="e.g. The Dark Knight" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Genre</label>
+                        <input type="text" name="genre" placeholder="e.g. Action, Drama, Comedy" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Release Year</label>
+                        <input type="number" name="release_year" value="2024" min="1900" max="2030">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" placeholder="Brief description of the video..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Video File</label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <i class="fas fa-file-video"></i>
+                            <p>Click or drag a video file here</p>
+                            <p style="font-size: 0.7rem; margin-top: 5px; color: #6f7c9b;">Supported: MP4, WebM, AVI, MKV, MOV (max 500MB)</p>
+                            <div class="selected-file" id="selectedFile"></div>
+                            <input type="file" name="video_file" accept="video/*" required style="display: none;" id="fileInput">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-upload"></i> Upload Video
+                    </button>
+                    
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Uploading...</div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Video List -->
+            <div class="video-list-section">
+                <div class="video-list-header">
+                    <h2><i class="fas fa-list"></i> Video Library</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search videos..." onkeyup="filterVideos()">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+
+                {% if videos %}
+                <div class="video-table-wrapper">
+                    <table class="video-table" id="videoTable">
+                        <thead>
+                            <tr>
+                                <th>Video</th>
+                                <th>Genre</th>
+                                <th>Views</th>
+                                <th>Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for video in videos %}
+                            <tr class="video-row" data-title="{{ video.title.lower() }}" data-genre="{{ video.genre.lower() }}">
+                                <td>
+                                    <div class="video-title-cell">
+                                        <div class="video-thumb-icon"><i class="fas fa-film"></i></div>
+                                        <div>
+                                            <strong>{{ video.title }}</strong>
+                                            <div style="font-size: 0.7rem; color: #6f7c9b;">{{ video.release_year }} • {{ video.filename }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="genre-tag">{{ video.genre }}</span></td>
+                                <td><span class="views-count">{{ video.views }}</span></td>
+                                <td>{{ video.rating }}/10</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <a href="{{ url_for('video_player', video_id=video.id) }}" class="action-btn btn-view" title="View"><i class="fas fa-play"></i></a>
+                                        <button class="action-btn btn-edit" onclick="openEditModal({{ video.id }}, '{{ video.title|e }}', '{{ video.genre|e }}', {{ video.release_year or '' }}, '{{ video.description|e }}')" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <form method="POST" action="{{ url_for('admin_delete_video', video_id=video.id) }}" style="display:inline;" onsubmit="return confirm('Delete &quot;{{ video.title }}&quot;? This cannot be undone.');">
+                                            <button type="submit" class="action-btn btn-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-video-slash"></i>
+                    <h3>No Videos Yet</h3>
+                    <p>Upload your first video using the form on the left.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-edit"></i> Edit Video</h3>
+            <form id="editForm" method="POST" action="">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" id="editTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Genre</label>
+                    <input type="text" name="genre" id="editGenre" required>
+                </div>
+                <div class="form-group">
+                    <label>Release Year</label>
+                    <input type="number" name="release_year" id="editYear" min="1900" max="2030">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" id="editDescription" rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Changes</button>
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // File upload area handling
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const selectedFile = document.getElementById('selectedFile');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.style.borderColor = '#FFB347';
+            fileUploadArea.style.background = 'rgba(255, 200, 100, 0.08)';
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.style.borderColor = 'rgba(255, 215, 150, 0.3)';
+            fileUploadArea.style.background = 'rgba(0, 0, 0, 0.3)';
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.style.borderColor = 'rgba(255, 215, 150, 0.3)';
+            fileUploadArea.style.background = 'rgba(0, 0, 0, 0.3)';
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect() {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                selectedFile.textContent = 'Selected: ' + file.name + ' (' + (file.size / (1024*1024)).toFixed(1) + ' MB)';
+                selectedFile.style.display = 'block';
+            }
+        }
+
+        // Upload form submission with progress
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const file = fileInput.files[0];
+            if (file && file.size > 500 * 1024 * 1024) {
+                e.preventDefault();
+                alert('File is too large! Maximum size is 500MB.');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            uploadProgress.style.display = 'block';
+            
+            // Simulate progress (actual progress tracking requires XHR)
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) {
+                    progress = 90;
+                    clearInterval(interval);
+                }
+                progressFill.style.width = progress + '%';
+                progressText.textContent = 'Uploading... ' + Math.floor(progress) + '%';
+            }, 500);
+        });
+
+        // Search/Filter function
+        function filterVideos() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.video-row');
+            
+            rows.forEach(row => {
+                const title = row.dataset.title;
+                const genre = row.dataset.genre;
+                if (title.includes(input) || genre.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Edit Modal
+        function openEditModal(id, title, genre, year, description) {
+            document.getElementById('editModal').classList.add('active');
+            document.getElementById('editTitle').value = title;
+            document.getElementById('editGenre').value = genre;
+            document.getElementById('editYear').value = year || '';
+            document.getElementById('editDescription').value = description || '';
+            document.getElementById('editForm').action = '/admin/video/' + id + '/edit';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeEditModal();
+        });
+    </script>
+</body>
+</html>

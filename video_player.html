@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Now Playing: {{ video.title }} - CINEBOX</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0f1e;
+            color: #fff;
+        }
+
+        .video-container {
+            background: #000;
+            position: relative;
+            width: 100%;
+            max-height: 70vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        video {
+            width: 100%;
+            max-height: 70vh;
+            background: #000;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .video-info {
+            margin-bottom: 2rem;
+        }
+
+        .video-info h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .meta {
+            display: flex;
+            gap: 1rem;
+            color: #b9c7db;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .genre {
+            background: rgba(255, 200, 80, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .description {
+            line-height: 1.6;
+            color: #d0d8ec;
+        }
+
+        .related-section {
+            margin-top: 2rem;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .related-card {
+            background: rgba(18, 25, 40, 0.55);
+            border-radius: 16px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .related-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 190, 70, 0.15);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #FFD966;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .video-thumb {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 80, 80, 0.1);
+            border-radius: 16px;
+            margin: 2rem 0;
+        }
+
+        .error-message i {
+            font-size: 3rem;
+            color: #ff8080;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 1rem;
+            }
+            .video-info h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <a href="{{ url_for('dashboard') }}" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        
+        <div class="video-container">
+            <video id="videoPlayer" controls data-video-id="{{ video.id }}">
+                {% if video.filepath and video.filepath != '#' and video.filepath != '' %}
+                <source src="{{ video.filepath }}" type="{{ video.mime_type }}">
+                Your browser does not support the video tag.
+                {% else %}
+                <p>Video file not available.</p>
+                {% endif %}
+            </video>
+        </div>
+
+        {% if video.filepath == '#' or video.filepath == '' or 'txt' in video.filename %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>No Playable Video Found</h3>
+            <p>This entry was created as a placeholder. To add real videos, place MP4 files in the <strong>videos/</strong> folder and restart the server, or login as <strong>admin</strong> and use the upload page.</p>
+            <p style="margin-top: 1rem; color: #FFD966;">Supported formats: MP4, WebM, AVI, MKV, MOV</p>
+        </div>
+        {% endif %}
+
+        <div class="video-info">
+            <h1>{{ video.title }}</h1>
+            <div class="meta">
+                <span><i class="far fa-calendar"></i> {{ video.release_year }}</span>
+                <span><i class="fas fa-star"></i> {{ video.rating }}/10</span>
+                <span class="genre">{{ video.genre }}</span>
+                <span><i class="fas fa-eye"></i> {{ video.views }} views</span>
+            </div>
+            <p class="description">{{ video.description }}</p>
+        </div>
+
+        {% if related %}
+        <div class="related-section">
+            <h3><i class="fas fa-film"></i> More like this</h3>
+            <div class="related-grid">
+                {% for rel in related %}
+                <div class="related-card" onclick="window.location.href='{{ url_for('video_player', video_id=rel.id) }}'">
+                    <div class="video-thumb"><i class="fas fa-play-circle"></i></div>
+                    <h5>{{ rel.title }}</h5>
+                    <small>{{ rel.genre }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/video_player.js') }}" defer></script>
+    <script>
+        // Get video element and ID
+        const video = document.getElementById('videoPlayer');
+        const videoId = video.getAttribute('data-video-id');
+        let progressUpdateInterval = null;
+        
+        // Function to load saved progress
+        function loadSavedProgress() {
+            const savedProgress = localStorage.getItem('progress_' + videoId);
+            if (savedProgress && parseFloat(savedProgress) > 0) {
+                const progressPercent = (parseFloat(savedProgress) / video.duration) * 100;
+                if (progressPercent < 95) {
+                    const resume = confirm('Resume watching from where you left off?');
+                    if (resume) {
+                        video.currentTime = parseFloat(savedProgress);
+                    } else {
+                        localStorage.removeItem('progress_' + videoId);
+                    }
+                } else {
+                    localStorage.removeItem('progress_' + videoId);
+                }
+            }
+        }
+        
+        // Function to save progress
+        function saveProgress() {
+            if (video.duration && !isNaN(video.duration) && !video.paused) {
+                const currentTime = video.currentTime;
+                const progress = (currentTime / video.duration) * 100;
+                
+                localStorage.setItem('progress_' + videoId, currentTime);
+                
+                fetch('{{ url_for("update_progress") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        video_id: {{ video.id }},
+                        progress: Math.floor(progress)
+                    })
+                }).catch(function(err) {
+                    console.error('Error saving progress:', err);
+                });
+            }
+        }
+        
+        // Event listeners
+        if (video) {
+            video.addEventListener('loadedmetadata', loadSavedProgress);
+            
+            video.addEventListener('play', function() {
+                if (progressUpdateInterval) {
+                    clearInterval(progressUpdateInterval);
+                }
+                progressUpdateInterval = setInterval(saveProgress, 5000);
+            });
+            
+            video.addEventListener('pause', function() {
+                if (progressUpdateInterval) {
+                    clearInterval(progressUpdateInterval);
+                    saveProgress();
+                }
+            });
+            
+            video.addEventListener('ended', function() {
+                if (progressUpdateInterval) {
+                    clearInterval(progressUpdateInterval);
+                }
+                localStorage.removeItem('progress_' + videoId);
+            });
+
+            // Error handling
+            video.addEventListener('error', function(e) {
+                console.error('Video error:', e);
+                const errorMsg = document.createElement('div');
+                errorMsg.style.cssText = 'text-align:center;padding:2rem;color:#ff8080;';
+                
+                let msg = 'Error loading video. ';
+                switch (video.error ? video.error.code : 0) {
+                    case 1:
+                        msg += 'The video download was aborted.';
+                        break;
+                    case 2:
+                        msg += 'A network error occurred while loading the video.';
+                        break;
+                    case 3:
+                        msg += 'The video could not be decoded.';
+                        break;
+                    case 4:
+                        msg += 'The video format is not supported by your browser.';
+                        break;
+                    default:
+                        msg += 'An unknown error occurred.';
+                }
+                errorMsg.textContent = msg;
+                video.parentNode.appendChild(errorMsg);
+            });
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            switch(e.key) {
+                case ' ':
+                case 'Space':
+                    e.preventDefault();
+                    if (video.paused) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    video.currentTime = Math.max(0, video.currentTime - 5);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    video.currentTime = Math.min(video.duration, video.currentTime + 5);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    video.volume = Math.min(1, video.volume + 0.1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    video.volume = Math.max(0, video.volume - 0.1);
+                    break;
+                case 'f':
+                case 'F':
+                    e.preventDefault();
+                    if (!document.fullscreenElement) {
+                        video.requestFullscreen();
+                    } else {
+                        document.exitFullscreen();
+                    }
+                    break;
+                case 'm':
+                case 'M':
+                    e.preventDefault();
+                    video.muted = !video.muted;
+                    break;
+            }
+        });
+        
+        console.log('Video player initialized for: {{ video.title }}');
+    </script>
+</body>
+</html>
